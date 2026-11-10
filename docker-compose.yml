@@ -1,0 +1,22 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      OSRM_URL: http://osrm:5000
+      DB_PATH: /srv/backend/data/app.db
+      # Включите, когда сайт будет работать по HTTPS:
+      COOKIE_SECURE: "0"
+    volumes:
+      - ./data:/srv/backend/data   # компании и пользователи
+    depends_on:
+      - osrm
+    restart: unless-stopped
+
+  osrm:
+    image: ghcr.io/project-osrm/osrm-backend:v5.27.1
+    command: osrm-routed --algorithm mld --max-table-size 1000 /data/region.osrm
+    volumes:
+      - ./osrm-data:/data
+    restart: unless-stopped
